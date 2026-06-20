@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cadencemètre PWA</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2c3e50">
+    <style>
+        /* --- STYLES CSS --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none; /* Empêche la sélection de texte lors des clics rapides */
+            -webkit-user-select: none;
+        }
+
+        body {
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+            overflow: hidden; /* Évite les rebonds d'écran sur mobile */
+        }
+
+        .app-container {
+            text-align: center;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 400px;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .display-container {
+            margin: 30px 0;
+        }
+
+        #cadence-value {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #27ae60;
+        }
+
+        .unit {
+            font-size: 1rem;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #tap-btn {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            border: none;
+            background-color: #2980b9;
+            color: white;
+            font-size: 1.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 6px 15px rgba(41, 128, 185, 0.4);
+            transition: transform 0.05s, background-color 0.1s;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #tap-btn:active {
+            transform: scale(0.92);
+            background-color: #3498db;
+        }
+
+        #reset-btn {
+            margin-top: 30px;
+            background: transparent;
+            border: 1px solid #7f8c8d;
+            color: #7f8c8d;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        #reset-btn:hover {
+            background: #7f8c8d;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <h1>Compteur de Cadence</h1>
+        
+        <div class="display-container">
+            <div id="cadence-value">0</div>
+            <div class="unit">inputs / min</div>
+        </div>
+
+        <button id="tap-btn">TAP</button>
+        
+        <br>
+        <button id="reset-btn">Réinitialiser</button>
+    </div>
+
+    <script>
+        // --- LOGIQUE JAVASCRIPT ---
+        const tapBtn = document.getElementById('tap-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const cadenceDisplay = document.getElementById('cadence-value');
+
+        let tamps = []; 
+
+        function handleTap(e) {
+            if (e) e.preventDefault(); // Bloque le zoom tactile natif
+            
+            const now = Date.now();
+            tamps.push(now);
+            
+            cleanOldTimestamps(now);
+            calculateCadence();
+        }
+
+        function cleanOldTimestamps(now) {
+            const cutoff = now - 15000; // Conserve uniquement les 15 dernières secondes
+            tamps = tamps.filter(time => time > cutoff);
+        }
+
+        function calculateCadence() {
+            if (tamps.length < 2) {
+                cadenceDisplay.textContent = "0";
+                return;
+            }
+            
+            const firstTap = tamps[0];
+            const lastTap = tamps[tamps.length - 1];
+            const durationInSeconds = (lastTap - firstTap) / 1000;
+            
+            if (durationInSeconds === 0) return;
+            
+            const intervals = tamps.length - 1;
+            const ipm = (intervals / durationInSeconds) * 60;
+            
+            cadenceDisplay.textContent = Math.round(ipm);
+        }
+
+        function resetCounter() {
+            tamps = [];
+            cadenceDisplay.textContent = "0";
+        }
+
+        // Événement tactile principal (smartphone)
+        tapBtn.addEventListener('touchstart', handleTap, { passive: false });
+        
+        // Secours pour le clic souris (PC)
+        tapBtn.addEventListener('mousedown', (e) => {
+            if ('ontouchstart' in window) return; 
+            handleTap(e);
+        });
+
+        // Touche Espace (PC)
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                handleTap();
+            }
+        });
+
+        resetBtn.addEventListener('click', resetCounter);
+
+        // --- ENREGISTREMENT DU SERVICE WORKER ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Service Worker OK'))
+                    .catch(err => console.log('Erreur SW', err));
+            });
+        }
+    </script>
+</body>
+</html>
