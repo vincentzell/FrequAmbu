@@ -1,20 +1,25 @@
 {
-  "name": "Compteur de Cadence",
-  "short_name": "Cadence",
-  "start_url": "./index.html",
+  "name": "FréquAmbu",
+  "short_name": "FréquAmbu",
+  "description": "Calculateur de fréquence cardiaque et respiratoire pour ambulanciers et secouristes.",
+  "start_url": "/FrequAmbu/",
+  "scope": "/FrequAmbu/",
   "display": "standalone",
-  "background_color": "#f4f7f6",
-  "theme_color": "#2c3e50",
+  "background_color": "#1e293b",
+  "theme_color": "#1a252f",
+  "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "https://via.placeholder.com/192.png?text=TAP",
+      "src": "icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "https://via.placeholder.com/512.png?text=CADENCE",
+      "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
