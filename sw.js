@@ -1,4 +1,4 @@
-const CACHE_NAME = 'frequambu-cache-v1';
+const CACHE_NAME = 'frequambu-cache-v2';
 
 // Liste des ressources à mettre en cache pour le mode hors-ligne
 const ASSETS_TO_CACHE = [
@@ -6,7 +6,9 @@ const ASSETS_TO_CACHE = [
   'index.html',
   'manifest.json',
   'icon-192.png',
-  'icon-512.png'
+  'icon-512.png',
+  'icon512_maskable.png',
+  'icon512_rounded.png'
 ];
 
 // Étape 1 : Installation du Service Worker et mise en cache des fichiers
